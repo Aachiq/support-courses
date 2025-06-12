@@ -4,5 +4,7 @@ export interface Student {
   lastName: string;
   class: string;
   group: string;
+  subject: string;
   paidMonths: number[];
+  isPaidCurrentMonth: boolean;
 }

@@ -24,9 +24,10 @@ const StudentList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const studentsPerPage = 2;
+  const studentsPerPage = 10;
 
   useEffect(() => {
     getAll().then((data) => {
@@ -54,15 +55,18 @@ const StudentList: React.FC = () => {
       results = results.filter((s) => s.group === groupFilter);
     }
 
-    setFiltered(results);
-    setCurrentPage(1); // Reset to page 1 when filters change
-  }, [search, classFilter, groupFilter, students]);
+    if (subjectFilter) {
+      results = results.filter((s) => s.subject === subjectFilter);
+    }
 
-  // Get unique class and group options
+    setFiltered(results);
+    setCurrentPage(1); // Reset when filters change
+  }, [search, classFilter, groupFilter, subjectFilter, students]);
+
   const classOptions = Array.from(new Set(students.map((s) => s.class)));
   const groupOptions = Array.from(new Set(students.map((s) => s.group)));
+  const subjectOptions = Array.from(new Set(students.map((s) => s.subject)));
 
-  // Pagination logic
   const totalPages = Math.ceil(filtered.length / studentsPerPage);
   const startIdx = (currentPage - 1) * studentsPerPage;
   const currentStudents = filtered.slice(startIdx, startIdx + studentsPerPage);
@@ -71,6 +75,7 @@ const StudentList: React.FC = () => {
     setSearch("");
     setClassFilter("");
     setGroupFilter("");
+    setSubjectFilter("");
   };
 
   return (
@@ -80,7 +85,7 @@ const StudentList: React.FC = () => {
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={3}>
           <TextField
             label="Search by name"
             value={search}
@@ -104,7 +109,7 @@ const StudentList: React.FC = () => {
             ))}
           </TextField>
         </Grid>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={2}>
           <TextField
             select
             label="Filter by group"
@@ -116,6 +121,22 @@ const StudentList: React.FC = () => {
             {groupOptions.map((g) => (
               <MenuItem key={g} value={g}>
                 {g}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} sm={2}>
+          <TextField
+            select
+            label="Filter by matière"
+            value={subjectFilter}
+            onChange={(e) => setSubjectFilter(e.target.value)}
+            fullWidth
+          >
+            <MenuItem value="">All</MenuItem>
+            {subjectOptions.map((s) => (
+              <MenuItem key={s} value={s}>
+                {s}
               </MenuItem>
             ))}
           </TextField>
@@ -135,10 +156,10 @@ const StudentList: React.FC = () => {
       <List>
         {currentStudents.map((s) => (
           <React.Fragment key={s.id}>
-            <ListItem component={Link} to={`/student/${s.id}`}>
+            <ListItem button component={Link} to={`/student/${s.id}`}>
               <ListItemText
                 primary={`${s.firstName} ${s.lastName}`}
-                secondary={`Class: ${s.class} | Group: ${s.group}`}
+                secondary={`Class: ${s.class} | Group: ${s.group} | Matière: ${s.subject}`}
               />
             </ListItem>
             <Divider />
@@ -146,7 +167,7 @@ const StudentList: React.FC = () => {
         ))}
       </List>
 
-      {totalPages > 0 && (
+      {totalPages > 1 && (
         <Box mt={2} display="flex" justifyContent="center">
           <Pagination
             count={totalPages}
