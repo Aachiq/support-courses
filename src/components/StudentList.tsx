@@ -7,6 +7,10 @@ import {
   Typography,
   Divider,
   Box,
+  TextField,
+  MenuItem,
+  Grid,
+  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import type { Student } from "../types";
@@ -14,20 +18,114 @@ import type { Student } from "../types";
 const StudentList: React.FC = () => {
   const { getAll } = useIndexedDBStore<Student>("students");
   const [students, setStudents] = useState<Student[]>([]);
+  const [filtered, setFiltered] = useState<Student[]>([]);
+
+  const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
 
   useEffect(() => {
-    getAll().then(setStudents);
+    getAll().then((data) => {
+      setStudents(data);
+      setFiltered(data);
+    });
   }, []);
+
+  useEffect(() => {
+    let results = [...students];
+
+    if (search) {
+      results = results.filter((s) =>
+        `${s.firstName} ${s.lastName}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      );
+    }
+
+    if (classFilter) {
+      results = results.filter((s) => s.class === classFilter);
+    }
+
+    if (groupFilter) {
+      results = results.filter((s) => s.group === groupFilter);
+    }
+
+    setFiltered(results);
+  }, [search, classFilter, groupFilter, students]);
+
+  // Get unique values for class/group
+  const classOptions = Array.from(new Set(students.map((s) => s.class)));
+  const groupOptions = Array.from(new Set(students.map((s) => s.group)));
+
+  const clearFilters = () => {
+    setSearch("");
+    setClassFilter("");
+    setGroupFilter("");
+  };
 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
         Student List
       </Typography>
+
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} sm={4}>
+          <TextField
+            label="Search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <TextField
+            select
+            label="Filter by class"
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            fullWidth
+          >
+            <MenuItem value="">All</MenuItem>
+            {classOptions.map((c) => (
+              <MenuItem key={c} value={c}>
+                {c}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <TextField
+            select
+            label="Filter by group"
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            fullWidth
+          >
+            <MenuItem value="">All</MenuItem>
+            {groupOptions.map((g) => (
+              <MenuItem key={g} value={g}>
+                {g}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} sm={2}>
+          <Button
+            onClick={clearFilters}
+            variant="outlined"
+            fullWidth
+            sx={{ height: "100%" }}
+          >
+            Reset
+          </Button>
+        </Grid>
+      </Grid>
+
       <List>
-        {students.map((s) => (
+        {filtered.map((s) => (
           <React.Fragment key={s.id}>
-            <ListItem component={Link} to={`/student/${s.id}`}>
+            <ListItem button component={Link} to={`/student/${s.id}`}>
               <ListItemText
                 primary={`${s.firstName} ${s.lastName}`}
                 secondary={`Class: ${s.class} | Group: ${s.group}`}
