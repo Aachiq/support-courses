@@ -11,6 +11,7 @@ import {
   MenuItem,
   Grid,
   Button,
+  Pagination,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import type { Student } from "../types";
@@ -23,6 +24,9 @@ const StudentList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 2;
 
   useEffect(() => {
     getAll().then((data) => {
@@ -51,11 +55,17 @@ const StudentList: React.FC = () => {
     }
 
     setFiltered(results);
+    setCurrentPage(1); // Reset to page 1 when filters change
   }, [search, classFilter, groupFilter, students]);
 
-  // Get unique values for class/group
+  // Get unique class and group options
   const classOptions = Array.from(new Set(students.map((s) => s.class)));
   const groupOptions = Array.from(new Set(students.map((s) => s.group)));
+
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / studentsPerPage);
+  const startIdx = (currentPage - 1) * studentsPerPage;
+  const currentStudents = filtered.slice(startIdx, startIdx + studentsPerPage);
 
   const clearFilters = () => {
     setSearch("");
@@ -123,9 +133,9 @@ const StudentList: React.FC = () => {
       </Grid>
 
       <List>
-        {filtered.map((s) => (
+        {currentStudents.map((s) => (
           <React.Fragment key={s.id}>
-            <ListItem button component={Link} to={`/student/${s.id}`}>
+            <ListItem component={Link} to={`/student/${s.id}`}>
               <ListItemText
                 primary={`${s.firstName} ${s.lastName}`}
                 secondary={`Class: ${s.class} | Group: ${s.group}`}
@@ -135,6 +145,17 @@ const StudentList: React.FC = () => {
           </React.Fragment>
         ))}
       </List>
+
+      {totalPages > 0 && (
+        <Box mt={2} display="flex" justifyContent="center">
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(_, value) => setCurrentPage(value)}
+            color="primary"
+          />
+        </Box>
+      )}
     </Box>
   );
 };
