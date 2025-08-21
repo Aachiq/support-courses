@@ -5,23 +5,23 @@ import { Typography, List, ListItem, Box, Button } from "@mui/material";
 import type { Student } from "../types";
 
 const MONTHS_FULL = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
 ];
 
 const StudentDetails: React.FC = () => {
   const { id } = useParams();
-  const { getByID } = useIndexedDBStore<Student>("students");
+  const { getByID, update } = useIndexedDBStore<Student>("students");
   const [student, setStudent] = useState<Student | null>(null);
 
   useEffect(() => {
@@ -30,18 +30,41 @@ const StudentDetails: React.FC = () => {
     }
   }, [id]);
 
-  if (!student) return <Typography>Loading...</Typography>;
+  // Handler to add payment for current month
+  const handleAddPayment = async () => {
+    if (!student) return;
+
+    const currentMonth = new Date().getMonth() + 1; // months are 0-based
+    if (!student.paidMonths.includes(currentMonth)) {
+      const updatedStudent = {
+        ...student,
+        paidMonths: [...student.paidMonths, currentMonth],
+      };
+
+      // update in DB
+      await update(updatedStudent);
+
+      // update state
+      setStudent(updatedStudent);
+    }
+    alert("Déja payé ce mois !");
+  };
+
+  if (!student) return <Typography>En cours...</Typography>;
 
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto" }}>
+    <Box sx={{ maxWidth: 600, mt: 5 }}>
       <Typography variant="h4">
         {student.firstName} {student.lastName}
       </Typography>
       <Typography>
-        <b>Class:</b> {student.class}
+        <b>Classe:</b> {student.class}
       </Typography>
       <Typography>
-        <b>Group:</b> {student.group}
+        <b>Matière:</b> {student.subject}
+      </Typography>
+      <Typography>
+        <b>Groupe:</b> {student.group}
       </Typography>
 
       <Typography mt={2}>
@@ -53,7 +76,11 @@ const StudentDetails: React.FC = () => {
         ))}
       </List>
 
-      <Button component={Link} to="/" sx={{ mt: 2 }}>
+      <Button onClick={handleAddPayment} variant="contained" sx={{ mt: 2 }}>
+        Payer Ce mois
+      </Button>
+
+      <Button component={Link} to="/" sx={{ mt: 2, ml: 2 }}>
         ← Back
       </Button>
     </Box>

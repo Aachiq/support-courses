@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   Checkbox,
   Typography,
+  MenuItem,
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +46,7 @@ const StudentForm: React.FC = () => {
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
-              label="First Name"
+              label="Prénom"
               value={student.firstName}
               onChange={(e) =>
                 setStudent({ ...student, firstName: e.target.value })
@@ -56,7 +57,7 @@ const StudentForm: React.FC = () => {
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Last Name"
+              label="Nom"
               value={student.lastName}
               onChange={(e) =>
                 setStudent({ ...student, lastName: e.target.value })
@@ -67,7 +68,7 @@ const StudentForm: React.FC = () => {
           </Grid>
           <Grid item xs={4}>
             <TextField
-              label="Class"
+              label="Classe"
               value={student.class}
               onChange={(e) =>
                 setStudent({ ...student, class: e.target.value })
@@ -78,7 +79,7 @@ const StudentForm: React.FC = () => {
           </Grid>
           <Grid item xs={4}>
             <TextField
-              label="Group"
+              label="Groupe"
               value={student.group}
               onChange={(e) =>
                 setStudent({ ...student, group: e.target.value })
@@ -98,10 +99,16 @@ const StudentForm: React.FC = () => {
               fullWidth
               required
             >
-              {subjects.map((subject) => (
-                <option key={subject} value={subject}>
-                  {subject}
-                </option>
+              <MenuItem
+                value=""
+                onClick={() => setStudent({ ...student, subject: "" })}
+              >
+                All
+              </MenuItem>
+              {subjects.map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
@@ -114,6 +121,10 @@ const StudentForm: React.FC = () => {
                     setStudent({
                       ...student,
                       isPaidCurrentMonth: e.target.checked,
+                      paidMonths: [
+                        ...student.paidMonths,
+                        new Date().getMonth() + 1,
+                      ],
                     })
                   }
                 />
@@ -123,7 +134,7 @@ const StudentForm: React.FC = () => {
           </Grid>
           <Grid item xs={12}>
             <Button variant="contained" type="submit">
-              Create
+              Créer
             </Button>
           </Grid>
         </Grid>
