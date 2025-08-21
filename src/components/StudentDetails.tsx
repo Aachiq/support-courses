@@ -3,22 +3,18 @@ import { useParams, Link } from "react-router-dom";
 import { useIndexedDBStore } from "use-indexeddb";
 import {
   Typography,
-  List,
-  ListItem,
   Box,
   Button,
   TextField,
-  IconButton,
-  Checkbox,
+  Chip,
+  Stack,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   FormControlLabel,
-  Stack,
-  Chip,
+  Checkbox,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import type { Student } from "../types";
 
 const MONTHS_FULL = [
@@ -126,12 +122,64 @@ const StudentDetails: React.FC = () => {
 
   return (
     <Box sx={{ maxWidth: 600, mt: 5 }}>
-      <Typography variant="h4">
-        {student.firstName} {student.lastName}
-      </Typography>
-
-      {editMode ? (
+      {!editMode ? (
         <>
+          {/* Display student info */}
+          <Typography variant="h4">
+            {student.firstName} {student.lastName}
+          </Typography>
+          <Typography sx={{ mt: 1 }}>
+            <b>Classe:</b> {student.class}
+          </Typography>
+          <Typography>
+            <b>Matière:</b> {student.subject}
+          </Typography>
+          <Typography>
+            <b>Groupe:</b> {student.group}
+          </Typography>
+
+          {/* Paid months as chips */}
+          <Typography mt={2}>
+            <b>Mois payés:</b>
+          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
+            {student.paidMonths.map((m) => (
+              <Chip
+                key={m}
+                label={MONTHS_FULL[m - 1]}
+                onDelete={() => handleDeleteMonth(m)}
+                sx={{ mb: 1 }}
+              />
+            ))}
+          </Stack>
+
+          {/* Buttons */}
+          <Button
+            onClick={handleAddCurrentMonth}
+            variant="contained"
+            sx={{ mt: 2 }}
+          >
+            Payer ce mois
+          </Button>
+          <Button
+            onClick={() => setMonthDialogOpen(true)}
+            variant="outlined"
+            sx={{ mt: 2, ml: 2 }}
+          >
+            Ajouter mois(s) spécifique(s)
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{ mt: 2, ml: 2 }}
+            onClick={toggleEditMode}
+          >
+            Modifier
+          </Button>
+        </>
+      ) : (
+        <>
+          {/* Edit form */}
+          <Typography variant="h5">Modifier l'étudiant</Typography>
           <TextField
             label="Prénom"
             value={editedStudent.firstName}
@@ -177,48 +225,16 @@ const StudentDetails: React.FC = () => {
               setEditedStudent({ ...editedStudent, subject: e.target.value })
             }
           />
-          <Button variant="contained" sx={{ mt: 2 }} onClick={handleSave}>
-            Sauvegarder
-          </Button>
-          <Button sx={{ mt: 2, ml: 2 }} onClick={toggleEditMode}>
-            Annuler
-          </Button>
+          <Box sx={{ mt: 2 }}>
+            <Button variant="contained" onClick={handleSave}>
+              Sauvegarder
+            </Button>
+            <Button sx={{ ml: 2 }} onClick={toggleEditMode}>
+              Annuler
+            </Button>
+          </Box>
         </>
-      ) : (
-        <Button variant="outlined" sx={{ mt: 2 }} onClick={toggleEditMode}>
-          Modifier Étudiant
-        </Button>
       )}
-
-      <Typography mt={4}>
-        <b>Mois payés:</b>
-      </Typography>
-      <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-        {student.paidMonths.map((m) => (
-          <Chip
-            key={m}
-            label={MONTHS_FULL[m - 1]}
-            onDelete={() => handleDeleteMonth(m)}
-            // color="secondary"
-            sx={{ mb: 1 }}
-          />
-        ))}
-      </Stack>
-
-      <Button
-        onClick={handleAddCurrentMonth}
-        variant="contained"
-        sx={{ mt: 2 }}
-      >
-        Payer ce mois
-      </Button>
-      <Button
-        onClick={() => setMonthDialogOpen(true)}
-        variant="outlined"
-        sx={{ mt: 2, ml: 2 }}
-      >
-        Ajouter mois(s) spécifique(s)
-      </Button>
 
       {/* Dialog to select multiple months */}
       <Dialog open={monthDialogOpen} onClose={() => setMonthDialogOpen(false)}>
