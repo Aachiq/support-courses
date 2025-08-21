@@ -14,6 +14,8 @@ import {
   DialogActions,
   FormControlLabel,
   Checkbox,
+  Card,
+  CardContent,
 } from "@mui/material";
 import type { Student } from "../types";
 
@@ -51,13 +53,11 @@ const StudentDetails: React.FC = () => {
     }
   }, [id]);
 
-  // Toggle edit mode
   const toggleEditMode = () => {
     setEditMode(!editMode);
     setEditedStudent(student);
   };
 
-  // Save edited student info
   const handleSave = async () => {
     if (editedStudent) {
       await update(editedStudent);
@@ -66,7 +66,6 @@ const StudentDetails: React.FC = () => {
     }
   };
 
-  // Delete a paid month
   const handleDeleteMonth = async (month: number) => {
     if (!student) return;
     const updatedStudent = {
@@ -78,7 +77,6 @@ const StudentDetails: React.FC = () => {
     setEditedStudent(updatedStudent);
   };
 
-  // Add specific months (multi-select)
   const handleAddSelectedMonths = async () => {
     if (!student) return;
     const monthsToAdd = selectedMonths.filter(
@@ -99,7 +97,6 @@ const StudentDetails: React.FC = () => {
     setMonthDialogOpen(false);
   };
 
-  // Handler to add payment for current month
   const handleAddCurrentMonth = async () => {
     if (!student) return;
 
@@ -118,161 +115,192 @@ const StudentDetails: React.FC = () => {
     setEditedStudent(updatedStudent);
   };
 
-  if (!student || !editedStudent) return <Typography>En cours...</Typography>;
+  if (!student || !editedStudent)
+    return <Typography textAlign="center">En cours...</Typography>;
 
   return (
-    <Box sx={{ maxWidth: 600, mt: 5 }}>
-      {!editMode ? (
-        <>
-          {/* Display student info */}
-          <Typography variant="h4">
-            {student.firstName} {student.lastName}
-          </Typography>
-          <Typography sx={{ mt: 1 }}>
-            <b>Classe:</b> {student.class}
-          </Typography>
-          <Typography>
-            <b>Matière:</b> {student.subject}
-          </Typography>
-          <Typography>
-            <b>Groupe:</b> {student.group}
-          </Typography>
+    <Box sx={{ maxWidth: 900, mx: "auto", mt: 5 }}>
+      <Card sx={{ p: 3, boxShadow: 4 }}>
+        <CardContent>
+          {!editMode ? (
+            <>
+              {/* Student Info */}
+              <Typography variant="h4" gutterBottom>
+                {student.firstName} {student.lastName}
+              </Typography>
+              <Typography sx={{ mt: 1 }}>
+                <b>Classe:</b> {student.class}
+              </Typography>
+              <Typography>
+                <b>Matière:</b> {student.subject}
+              </Typography>
+              <Typography>
+                <b>Groupe:</b> {student.group}
+              </Typography>
 
-          {/* Paid months as chips */}
-          <Typography mt={2}>
-            <b>Mois payés:</b>
-          </Typography>
-          <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-            {student.paidMonths.map((m) => (
-              <Chip
-                key={m}
-                label={MONTHS_FULL[m - 1]}
-                onDelete={() => handleDeleteMonth(m)}
-                sx={{ mb: 1 }}
-              />
-            ))}
-          </Stack>
+              {/* Paid Months */}
+              <Typography mt={2}>
+                <b>Mois payés:</b>
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
+                {student.paidMonths.map((m) => (
+                  <Chip
+                    key={m}
+                    label={MONTHS_FULL[m - 1]}
+                    onDelete={() => handleDeleteMonth(m)}
+                    // color="success"
+                    sx={{ mb: 1 }}
+                  />
+                ))}
+              </Stack>
 
-          {/* Buttons */}
-          <Button
-            onClick={handleAddCurrentMonth}
-            variant="contained"
-            sx={{ mt: 2 }}
-          >
-            Payer ce mois
-          </Button>
-          <Button
-            onClick={() => setMonthDialogOpen(true)}
-            variant="outlined"
-            sx={{ mt: 2, ml: 2 }}
-          >
-            Ajouter mois(s) spécifique(s)
-          </Button>
-          <Button
-            variant="outlined"
-            sx={{ mt: 2, ml: 2 }}
-            onClick={toggleEditMode}
-          >
-            Modifier
-          </Button>
-        </>
-      ) : (
-        <>
-          {/* Edit form */}
-          <Typography variant="h5">Modifier l'étudiant</Typography>
-          <TextField
-            label="Prénom"
-            value={editedStudent.firstName}
-            fullWidth
-            sx={{ mt: 2 }}
-            onChange={(e) =>
-              setEditedStudent({ ...editedStudent, firstName: e.target.value })
-            }
-          />
-          <TextField
-            label="Nom"
-            value={editedStudent.lastName}
-            fullWidth
-            sx={{ mt: 2 }}
-            onChange={(e) =>
-              setEditedStudent({ ...editedStudent, lastName: e.target.value })
-            }
-          />
-          <TextField
-            label="Classe"
-            value={editedStudent.class}
-            fullWidth
-            sx={{ mt: 2 }}
-            onChange={(e) =>
-              setEditedStudent({ ...editedStudent, class: e.target.value })
-            }
-          />
-          <TextField
-            label="Groupe"
-            value={editedStudent.group}
-            fullWidth
-            sx={{ mt: 2 }}
-            onChange={(e) =>
-              setEditedStudent({ ...editedStudent, group: e.target.value })
-            }
-          />
-          <TextField
-            label="Matière"
-            value={editedStudent.subject}
-            fullWidth
-            sx={{ mt: 2 }}
-            onChange={(e) =>
-              setEditedStudent({ ...editedStudent, subject: e.target.value })
-            }
-          />
-          <Box sx={{ mt: 2 }}>
-            <Button variant="contained" onClick={handleSave}>
-              Sauvegarder
-            </Button>
-            <Button sx={{ ml: 2 }} onClick={toggleEditMode}>
-              Annuler
-            </Button>
-          </Box>
-        </>
-      )}
+              {/* Buttons */}
+              <Stack direction="row" spacing={2} mt={3}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddCurrentMonth}
+                >
+                  Payer ce mois
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => setMonthDialogOpen(true)}
+                >
+                  Ajouter mois(s) spécifique(s)
+                </Button>
+                <Button variant="outlined" onClick={toggleEditMode}>
+                  Modifier
+                </Button>
+                <Button
+                  component={Link}
+                  to="/"
+                  variant="text"
+                  color="secondary"
+                >
+                  ← Retour
+                </Button>
+              </Stack>
+            </>
+          ) : (
+            <>
+              {/* Edit Form */}
+              <Typography variant="h5" gutterBottom>
+                Modifier l'étudiant
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  label="Prénom"
+                  value={editedStudent.firstName}
+                  fullWidth
+                  onChange={(e) =>
+                    setEditedStudent({
+                      ...editedStudent,
+                      firstName: e.target.value,
+                    })
+                  }
+                />
+                <TextField
+                  label="Nom"
+                  value={editedStudent.lastName}
+                  fullWidth
+                  onChange={(e) =>
+                    setEditedStudent({
+                      ...editedStudent,
+                      lastName: e.target.value,
+                    })
+                  }
+                />
+                <TextField
+                  label="Classe"
+                  value={editedStudent.class}
+                  fullWidth
+                  onChange={(e) =>
+                    setEditedStudent({
+                      ...editedStudent,
+                      class: e.target.value,
+                    })
+                  }
+                />
+                <TextField
+                  label="Groupe"
+                  value={editedStudent.group}
+                  fullWidth
+                  onChange={(e) =>
+                    setEditedStudent({
+                      ...editedStudent,
+                      group: e.target.value,
+                    })
+                  }
+                />
+                <TextField
+                  label="Matière"
+                  value={editedStudent.subject}
+                  fullWidth
+                  onChange={(e) =>
+                    setEditedStudent({
+                      ...editedStudent,
+                      subject: e.target.value,
+                    })
+                  }
+                />
 
-      {/* Dialog to select multiple months */}
-      <Dialog open={monthDialogOpen} onClose={() => setMonthDialogOpen(false)}>
+                <Stack direction="row" spacing={2} justifyContent="flex-start">
+                  <Button variant="contained" onClick={handleSave}>
+                    Sauvegarder
+                  </Button>
+                  <Button variant="outlined" onClick={toggleEditMode}>
+                    Annuler
+                  </Button>
+                </Stack>
+              </Stack>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog for selecting multiple months */}
+      <Dialog
+        open={monthDialogOpen}
+        onClose={() => setMonthDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Sélectionner les mois à payer</DialogTitle>
         <DialogContent>
-          {MONTHS_FULL.map((monthName, index) => {
-            const monthNumber = index + 1;
-            return (
-              <FormControlLabel
-                key={monthNumber}
-                control={
-                  <Checkbox
-                    checked={selectedMonths.includes(monthNumber)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedMonths([...selectedMonths, monthNumber]);
-                      } else {
-                        setSelectedMonths(
-                          selectedMonths.filter((m) => m !== monthNumber)
-                        );
-                      }
-                    }}
-                  />
-                }
-                label={monthName}
-              />
-            );
-          })}
+          <Stack spacing={1} mt={1}>
+            {MONTHS_FULL.map((monthName, index) => {
+              const monthNumber = index + 1;
+              return (
+                <FormControlLabel
+                  key={monthNumber}
+                  control={
+                    <Checkbox
+                      checked={selectedMonths.includes(monthNumber)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedMonths([...selectedMonths, monthNumber]);
+                        } else {
+                          setSelectedMonths(
+                            selectedMonths.filter((m) => m !== monthNumber)
+                          );
+                        }
+                      }}
+                    />
+                  }
+                  label={monthName}
+                />
+              );
+            })}
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMonthDialogOpen(false)}>Annuler</Button>
-          <Button onClick={handleAddSelectedMonths}>Ajouter</Button>
+          <Button variant="contained" onClick={handleAddSelectedMonths}>
+            Ajouter
+          </Button>
         </DialogActions>
       </Dialog>
-
-      <Button component={Link} to="/" sx={{ mt: 2, ml: 2 }}>
-        ← Retour
-      </Button>
     </Box>
   );
 };

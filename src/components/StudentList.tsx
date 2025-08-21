@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useIndexedDBStore } from "use-indexeddb";
 import {
-  List,
-  ListItem,
-  ListItemText,
+  Card,
+  CardContent,
   Typography,
-  Divider,
   Box,
   TextField,
   MenuItem,
@@ -15,13 +13,15 @@ import {
   IconButton,
   FormControlLabel,
   Checkbox,
+  Stack,
+  Divider,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 import type { Student } from "../types";
 
 const StudentList: React.FC = () => {
-  const { getAll, deleteRecord } = useIndexedDBStore<Student>("students"); // add deleteRecord here
+  const { getAll, deleteRecord } = useIndexedDBStore<Student>("students");
   const [students, setStudents] = useState<Student[]>([]);
   const [filtered, setFiltered] = useState<Student[]>([]);
 
@@ -55,34 +55,19 @@ const StudentList: React.FC = () => {
           .includes(search.toLowerCase())
       );
     }
-
-    if (classFilter) {
-      results = results.filter((s) => s.class === classFilter);
-    }
-
-    if (groupFilter) {
-      results = results.filter((s) => s.group === groupFilter);
-    }
-
-    if (subjectFilter) {
+    if (classFilter) results = results.filter((s) => s.class === classFilter);
+    if (groupFilter) results = results.filter((s) => s.group === groupFilter);
+    if (subjectFilter)
       results = results.filter((s) => s.subject === subjectFilter);
-    }
+    if (unpaidFilter) results = results.filter((s) => !s.isPaidCurrentMonth);
 
-    if (unpaidFilter) {
-      // const currentMonthPaid = students.filter((s) => s.isPaidCurrentMonth).length;
-      const unpaidStudents = students.filter(
-        (s) => s.isPaidCurrentMonth === false
-      );
-      results = unpaidStudents;
-    }
     setFiltered(results);
-    setCurrentPage(1); // Reset when filters change
+    setCurrentPage(1);
   }, [search, classFilter, groupFilter, subjectFilter, students, unpaidFilter]);
 
   const classOptions = Array.from(new Set(students.map((s) => s.class)));
   const groupOptions = Array.from(new Set(students.map((s) => s.group)));
   const subjectOptions = Array.from(new Set(students.map((s) => s.subject)));
-  const isPaidOptions = ["Payé", "Non Payé"];
 
   const totalPages = Math.ceil(filtered.length / studentsPerPage);
   const startIdx = (currentPage - 1) * studentsPerPage;
@@ -96,84 +81,78 @@ const StudentList: React.FC = () => {
     setUnpaidFilter(false);
   };
 
-  // Delete handler
   const handleDelete = (id: string) => {
     deleteRecord(id)
-      .then(() => {
-        loadStudents(); // reload students after delete
-      })
-      .catch((err: any) => {
-        console.error("Delete failed:", err);
-      });
+      .then(() => loadStudents())
+      .catch((err: any) => console.error("Delete failed:", err));
   };
 
   return (
-    <Box marginY={2}>
-      <Typography variant="h5">Liste Des Etudiants</Typography>
-
-      <Box
-        sx={{
-          display: "flex",
-          magrin: 10,
-        }}
+    <Box sx={{ maxWidth: 900, mx: "auto", mt: 5 }}>
+      <Typography
+        variant="h4"
+        color="primary"
+        fontWeight={500}
+        textAlign="center"
       >
-        <Box flex={1}>
+        Liste des Étudiants
+      </Typography>
+
+      {/* Filters */}
+      <Card sx={{ mb: 3, p: 2, width: "100%" }}>
+        <Stack
+          spacing={2}
+          direction={{ xs: "column", sm: "row" }}
+          flexWrap="wrap"
+        >
           <TextField
-            label="Search by name"
+            label="Nom"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            fullWidth
+            sx={{ maxWidth: 150 }}
           />
-        </Box>
-        <Box flex={1}>
           <TextField
             select
-            label="Filter by class"
+            label="Classe"
             value={classFilter}
             onChange={(e) => setClassFilter(e.target.value)}
-            fullWidth
+            sx={{ minWidth: 120 }}
           >
-            <MenuItem value="">All</MenuItem>
+            <MenuItem value="">Tous</MenuItem>
             {classOptions.map((c) => (
               <MenuItem key={c} value={c}>
                 {c}
               </MenuItem>
             ))}
           </TextField>
-        </Box>
-        <Box flex={1}>
           <TextField
             select
-            label="Filter by group"
+            label="Groupe"
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value)}
-            fullWidth
+            sx={{ minWidth: 120 }}
           >
-            <MenuItem value="">All</MenuItem>
+            <MenuItem value="">Tous</MenuItem>
             {groupOptions.map((g) => (
               <MenuItem key={g} value={g}>
                 {g}
               </MenuItem>
             ))}
           </TextField>
-        </Box>
-        <Box flex={1}>
           <TextField
             select
-            label="Filter by matière"
+            label="Matière"
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
-            fullWidth
+            sx={{ minWidth: 120 }}
           >
-            <MenuItem value="">All</MenuItem>
+            <MenuItem value="">Tous</MenuItem>
             {subjectOptions.map((s) => (
               <MenuItem key={s} value={s}>
                 {s}
               </MenuItem>
             ))}
           </TextField>
-        </Box>
-        <Box flex={1} marginLeft={2}>
           <FormControlLabel
             control={
               <Checkbox
@@ -181,50 +160,53 @@ const StudentList: React.FC = () => {
                 onChange={() => setUnpaidFilter(!unpaidFilter)}
               />
             }
-            label="Non Payés"
+            label="Non payés"
           />
-        </Box>
-        <Box>
           <Button
-            onClick={clearFilters}
             variant="outlined"
-            fullWidth
-            sx={{ height: "100%" }}
+            onClick={clearFilters}
+            sx={{ minHeight: 56 }}
           >
-            Reset
+            Réinitialiser
           </Button>
-        </Box>
-      </Box>
+        </Stack>
+      </Card>
 
-      <List>
+      {/* Student List */}
+      <Stack spacing={2}>
         {currentStudents.map((s) => (
-          <React.Fragment key={s.id}>
-            <ListItem
-              secondaryAction={
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleDelete(s.id)}
-                  size="large"
-                >
-                  <DeleteIcon color="error" />
-                </IconButton>
-              }
-              component={Link}
-              to={`/student/${s.id}`}
+          <Card key={s.id} variant="outlined">
+            <CardContent
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
             >
-              <ListItemText
-                primary={`${s.firstName} ${s.lastName}`}
-                secondary={`Class: ${s.class} | Group: ${s.group} | Matière: ${s.subject}`}
-              />
-            </ListItem>
-            <Divider />
-          </React.Fragment>
+              <Box
+                component={Link}
+                to={`/student/${s.id}`}
+                sx={{ textDecoration: "none", flexGrow: 1 }}
+              >
+                <Typography variant="h6">{`${s.firstName} ${s.lastName}`}</Typography>
+                <Typography color="text.secondary">
+                  Classe: {s.class} | Groupe: {s.group} | Matière: {s.subject} |{" "}
+                  {s.isPaidCurrentMonth ? "Payé ce mois" : "Non payé"}
+                </Typography>
+              </Box>
+              <IconButton onClick={() => handleDelete(s.id)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </CardContent>
+          </Card>
         ))}
-      </List>
+      </Stack>
 
+      {/* Pagination */}
       {totalPages > 0 && (
-        <Box mt={2} display="flex" justifyContent="center">
+        <Box mt={3} display="flex" justifyContent="center">
           <Pagination
             count={totalPages}
             page={currentPage}
