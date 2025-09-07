@@ -7,21 +7,19 @@ import {
   Box,
   TextField,
   MenuItem,
-  Grid,
   Button,
   Pagination,
   IconButton,
   FormControlLabel,
   Checkbox,
   Stack,
-  Divider,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 import type { Student } from "../types";
 
 const StudentList: React.FC = () => {
-  const { getAll, deleteRecord } = useIndexedDBStore<Student>("students");
+  const { getAll, deleteByID } = useIndexedDBStore<Student>("students");
   const [students, setStudents] = useState<Student[]>([]);
   const [filtered, setFiltered] = useState<Student[]>([]);
 
@@ -82,7 +80,7 @@ const StudentList: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    deleteRecord(id)
+    deleteByID(id)
       .then(() => loadStudents())
       .catch((err: any) => console.error("Delete failed:", err));
   };

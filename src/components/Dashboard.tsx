@@ -10,7 +10,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Pie, Bar } from "react-chartjs-2";
 import type { Student } from "../types";
 
 ChartJS.register(
@@ -32,18 +31,18 @@ const Dashboard: React.FC = () => {
 
   const totalStudents = students.length;
 
-  const studentsByClass = students.reduce((acc: Record<string, number>, s) => {
-    acc[s.class] = (acc[s.class] || 0) + 1;
-    return acc;
-  }, {});
+  // const studentsByClass = students.reduce((acc: Record<string, number>, s) => {
+  //   acc[s.class] = (acc[s.class] || 0) + 1;
+  //   return acc;
+  // }, {});
 
-  const studentsBySubject = students.reduce(
-    (acc: Record<string, number>, s) => {
-      acc[s.subject] = (acc[s.subject] || 0) + 1;
-      return acc;
-    },
-    {}
-  );
+  // const studentsBySubject = students.reduce(
+  //   (acc: Record<string, number>, s) => {
+  //     acc[s.subject] = (acc[s.subject] || 0) + 1;
+  //     return acc;
+  //   },
+  //   {}
+  // );
 
   const currentMonthPaid = students.filter((s) => s.isPaidCurrentMonth).length;
   const currentMonthUnpaid = students.filter(
