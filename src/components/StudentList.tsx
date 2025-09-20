@@ -81,7 +81,10 @@ const StudentList: React.FC = () => {
 
   const handleDelete = (id: string) => {
     deleteByID(id)
-      .then(() => loadStudents())
+      .then(() => {
+        loadStudents();
+        window.location.reload();
+      })
       .catch((err: any) => console.error("Delete failed:", err));
   };
 

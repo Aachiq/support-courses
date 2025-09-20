@@ -35,7 +35,10 @@ const StudentForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    add(student).then(() => navigate("/"));
+    add(student).then(() => {
+      navigate("/");
+      window.location.reload();
+    });
   };
 
   // Handle checkbox change for current month payment
