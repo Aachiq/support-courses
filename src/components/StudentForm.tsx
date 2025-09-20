@@ -37,7 +37,6 @@ const StudentForm: React.FC = () => {
     e.preventDefault();
     add(student).then(() => {
       navigate("/");
-      window.location.reload();
     });
   };
 

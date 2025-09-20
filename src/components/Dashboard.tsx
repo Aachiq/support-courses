@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
-import { useIndexedDBStore } from "use-indexeddb";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -10,7 +8,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import type { Student } from "../types";
 
 ChartJS.register(
   ArcElement,
@@ -21,13 +18,16 @@ ChartJS.register(
   Legend
 );
 
-const Dashboard: React.FC = () => {
-  const { getAll } = useIndexedDBStore<Student>("students");
-  const [students, setStudents] = useState<Student[]>([]);
+interface IDashboardProps {
+  students: any[];
+}
+const Dashboard = ({ students }: IDashboardProps) => {
+  // const { getAll } = useIndexedDBStore<Student>("students");
+  // const [students, setStudents] = useState<Student[]>([]);
 
-  useEffect(() => {
-    getAll().then((data) => setStudents(data));
-  }, []);
+  // useEffect(() => {
+  //   getAll().then((data) => setStudents(data));
+  // }, []);
 
   const totalStudents = students.length;
 

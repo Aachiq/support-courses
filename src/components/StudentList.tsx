@@ -17,6 +17,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 import type { Student } from "../types";
+import Dashboard from "./Dashboard";
 
 const StudentList: React.FC = () => {
   const { getAll, deleteByID } = useIndexedDBStore<Student>("students");
@@ -83,18 +84,19 @@ const StudentList: React.FC = () => {
     deleteByID(id)
       .then(() => {
         loadStudents();
-        window.location.reload();
       })
       .catch((err: any) => console.error("Delete failed:", err));
   };
 
   return (
     <Box sx={{ maxWidth: 900, mx: "auto", mt: 5 }}>
+      <Dashboard students={students} />
       <Typography
         variant="h4"
         color="primary"
         fontWeight={500}
         textAlign="center"
+        marginTop={3}
       >
         Liste des Étudiants
       </Typography>

@@ -10,7 +10,6 @@ import {
 import StudentForm from "./components/StudentForm";
 import StudentList from "./components/StudentList";
 import StudentDetails from "./components/StudentDetails";
-import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -28,13 +27,13 @@ function App() {
           </Button>
         </Toolbar>
       </AppBar>
-      <Dashboard />
+      {/* <Dashboard /> */}
       <Container>
         <Routes>
           <Route path="/" element={<StudentList />} />
           <Route path="/add" element={<StudentForm />} />
           <Route path="/student/:id" element={<StudentDetails />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Routes>
       </Container>
     </Box>
